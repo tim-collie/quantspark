@@ -1,7 +1,7 @@
 # Deploying an AWS based webservice via IaC  
 
 This repository contains Terraform code to deploy an AWS based webserver. This document will cover infrastructure deployment, 
-removal and design choices with a final section giving an idea of improvments weith further time investiment.
+removal and design choices with a final section giving an idea of improvements with further time investment.
 
 - Terraform 1.2.*
 - AWS CLI
