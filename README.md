@@ -42,6 +42,8 @@ To deploy the infrastructure:
 
 1. Clone this repository to your local environment.
 
+2. Navigate to the repository root and change to the application directory.
+
 2. Run the following Terraform commands:
 
 `terraform init`
@@ -66,8 +68,8 @@ We use an application load balancer to route traffic between the EC2 instances, 
 
 # Potential Improvements
 
-- **Deployment**: Running Terraform from the command line is problematic as it provides minimal auditing and version control, it would be better to move this to a CI/CD platform such as Github Actions driving deployments through a PR process - this does increase complexity and would require planning around local Github Actions runner hosted within AWS and conderation of a well structured IAM setup. Currently the webserver is only serving unencrypted traffic, we have deployed an application load balancer and can use an AWS based certificate authority to generate and deploy an SSL certificate for the ALB and handle SSL termination for HTTPS traffic at the ALB level.
-
+- **Deployment**: Running Terraform from the command line is problematic as it provides minimal auditing and version control, it would be better to move this to a CI/CD platform such as Github Actions driving deployments through a PR process - this does increase complexity and would require planning around local Github Actions runner hosted within AWS and conderation of a well structured IAM setup. Currently the webserver is only serving unencrypted traffic, we have deployed an application load balancer and can use either an external certificate source or AWS based certificate authority to generate and deploy an SSL certificate for the ALB and handle SSL termination for HTTPS traffic at the ALB level in combination with public DNS either managed via Route53 or an external provider.
+  
   The local deployment process also is creating local state files, to allow for consistent infrastructure the state file ideally should be held centrally in an S3 bucket. We also have no locking to ensure that competing deployments are impossible, this can also be catered for via a centrally located DynamoDB instance.     
 
 - **Monitoring**: We have no monitoring in place, the expectation should be to capture logs within Cloudwatch and also provide alerting on instance availability issues via Cloudwatch Alarms and potentially SNS. We could consider 3rd party products such as Sumologic for log ingrestion or New Relic for a more complete monitoing solution.
