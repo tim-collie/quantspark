@@ -34,7 +34,7 @@ The Terraform code `main.tf` file creates a simple AWS infrastructure setup for 
 
 - **Application Load Balancer**: An Application Load Balancer configured with a Target Group.
 
-- **Security Group** one security group for the load balancer with port 80 (http) inbound from the internet, one security group for the webserver EC2 instances allowing traffic from the ALB. 
+- **Security Group** one security group for the load balancer with port 80 (http) inbound from the internet, one security group for the webserver EC2 instances allowing traffic from the ALB on port 80 by referring to the ALB security group as the source of traffic. We can achieve this by the fact that the ALB is terminating traffic so is the effective source of all inbound HTTP traffic.
 
 The Terraform code `providers.tf` file enables the controlled definition of the versions of providers we use.
 
