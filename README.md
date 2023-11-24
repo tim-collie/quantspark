@@ -67,7 +67,7 @@ To deploy the infrastructure:
 
 The brief required the solution to be secure, resilient and cost efficient while being simple to understand and deploy.
 
-I have selected EC2 as the platform to act as the webserver - this give the ability to be cost efficient by selecting instance sizes that fall into the free tier while also supporting autoscaling. We use autoscaling to maintain fault tolerance at the application level  by ensuring we always have at least two instances available, by default ths ASG will place instances into the two availability zones we use so we achieve fault tolerance within our selected AWS region. We place the EC2 instances on public subnets and secure via security groups, the instances themselves are deployed using a launch template giving a simple webserver solution via user data at launch time. 
+I have selected EC2 as the platform to act as the webserver - this give the ability to be cost efficient by selecting instance sizes that fall into the free tier while also supporting autoscaling. We use autoscaling to maintain fault tolerance at the application level  by ensuring we always have at least two instances available, by default ths ASG will place instances into the two availability zones we use so we achieve fault tolerance within our selected AWS region. We place the EC2 instances on private subnets and secure via security groups, the instances themselves are deployed using a launch template giving a simple webserver solution via user data at launch time. 
 
 We use an application load balancer to route traffic between the EC2 instances, this is the cornerstone of our fault tolerance over mulitple availability zones.
 
