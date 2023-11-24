@@ -2,7 +2,7 @@
 
 ![Quantspark (2)](https://github.com/tim-collie/quantspark/assets/43747594/c236b3af-aa96-4003-8bee-d2c26d884237)
 
-This repository contains Terraform code to deploy an AWS based webserver. This document will cover infrastructure deployment, 
+This repository contains Terraform code to deploy asimple AWS based webservice. This document will cover infrastructure deployment, 
 removal and design choices with a final section giving an idea of improvements with further time investment.
 
 - Terraform 1.2.*
