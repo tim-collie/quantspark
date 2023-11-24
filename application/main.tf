@@ -26,17 +26,17 @@ resource "aws_subnet" "quantspark_public_subnets" {
 }
 
 # Create private subnets
-#resource "aws_subnet" "quantspark_private_subnets" {
-#  count             = 2
-#  vpc_id            = aws_vpc.quantspark_vpc.id
-#  cidr_block        = element(["10.0.2.0/24", "10.0.3.0/24"], count.index)
-#  availability_zone = element(["eu-west-2a", "eu-west-2b"], count.index)
-#  map_public_ip_on_launch = false
-#  tags = merge(
-#    var.tags,
-#    {Name = "QuantsparkApp-private-subnet-${count.index}"}
-#  )
-#}
+resource "aws_subnet" "quantspark_private_subnets" {
+  count             = 2
+  vpc_id            = aws_vpc.quantspark_vpc.id
+  cidr_block        = element(["10.0.2.0/24", "10.0.3.0/24"], count.index)
+  availability_zone = element(["eu-west-2a", "eu-west-2b"], count.index)
+  map_public_ip_on_launch = false
+  tags = merge(
+    var.tags,
+    {Name = "QuantsparkApp-private-subnet-${count.index}"}
+  )
+}
 
 # Create IGW
 resource "aws_internet_gateway" "quantspark_igw" {
@@ -85,6 +85,29 @@ resource "aws_vpc_endpoint_policy" "s3_endpoint_policy" {
     ]
   })
 }
+
+# Generate SSH key
+resource "tls_private_key" "key_pair" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
+resource "aws_key_pair" "generated_key" {
+  key_name = "quantspark-webserver"
+  public_key = tls_private_key.key_pair.public_key_openssh
+}
+
+# Store ssh key in Secrets Manager
+resource "aws_secretsmanager_secret" "ssh_secret" {
+  name = "ssh-keys/quantspark-webserver-private-key"
+  recovery_window_in_days = 0
+}
+
+resource "aws_secretsmanager_secret_version" "secretsmanager_secret" {
+  secret_id     = aws_secretsmanager_secret.ssh_secret.id
+  secret_string = tls_private_key.key_pair.private_key_pem
+}
+
 
 # Create ALB security group
 resource "aws_security_group" "quantspark_alb_security_group" {
@@ -188,7 +211,8 @@ resource "aws_security_group" "quantspark_webserver_security_group" {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = ["10.0.0.0/16"]
+    #cidr_blocks = ["10.0.0.0/16"]
+    security_groups = [aws_security_group.quantspark_alb_security_group.id]
   }
 
   tags = var.tags
@@ -212,13 +236,13 @@ resource "aws_launch_template" "quantspark_webserver" {
   instance_type = "t2.micro"
   image_id      = "ami-0cfd0973db26b893b"
   user_data = filebase64("./user_data.sh")
-  key_name = "quantspark-webserver-keypair"
+  key_name = "quantspark-webserver"
 }
 
 # Create autoscaling group
 resource "aws_autoscaling_group" "quantspark_asg" {
   name = "Quantspark-asg"
-  vpc_zone_identifier = aws_subnet.quantspark_public_subnets[*].id
+  vpc_zone_identifier = aws_subnet.quantspark_private_subnets[*].id
   target_group_arns  = [aws_lb_target_group.quantspark_webserver_target_group.arn]
   min_size           = 2
   max_size           = 2
