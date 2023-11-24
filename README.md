@@ -12,7 +12,6 @@ removal and design choices with a final section giving an idea of improvements w
 Prior to running this code the following have to be in place:
 
 - **Suitable Authentication to AWS**: Either by locally a configured AWS key and key secret or via an assumed IAM role, access to deploy to the correct AWS account is required. 
-- **AWS Key Pair**: An AWS key pair will be required and referred to as part of the Terraform code, this should ideally be created separately with Terraform separately to this code with the name 'quantspark-webserver-keypair' and be available the deployment region (by default eu-west-2)
 - **Terraform**: A suitable local version of terraform, this code was prepared using 1.2.9 and it is recommended to use the same verion.
 
 # Code structure
@@ -21,11 +20,15 @@ The Terraform code `main.tf` file creates a simple AWS infrastructure setup for 
 
 - **VPC**: A Virtual Private Cloud (VPC) with 2 public distributed across different Availability Zones.
 
+- **Subnets**: A public and private subnet is created in each of two availability zones, we place the ALB spanning the public zones, we host the webservers in the private zones to facilitate a degree of security.
+
 - **EC2 Instances**: An Elastic Compute Cloud (EC2) instance launched as part of an Auto Scaling Group (ASG) and Launch Template.
 
 - **VPC Endpoint**: A policy limited S3 endpoint to allow EC2 instances without internet access to run yum update and install Apache2.
 
 - **IAM Role**: An IAM role associated with the EC2 instances.
+
+- **Key Pair**: For troubleshooting purposes after creating the SSH key used by the EC2 instances we place the private key into Secrets Manager
 
 - **Application Load Balancer**: An Application Load Balancer configured with a Target Group.
 
