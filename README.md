@@ -1,6 +1,6 @@
 # Deploying an AWS based webservice via IaC
 
-![Untitled Workspace](https://github.com/tim-collie/quantspark/assets/43747594/6ae608a6-d866-473f-9caf-f738f922a9db)
+![Untitled Workspace (1)](https://github.com/tim-collie/quantspark/assets/43747594/dfa93316-641d-4cd4-851b-051f34a92eb7)
 
 This repository contains Terraform code to deploy an AWS based webserver. This document will cover infrastructure deployment, 
 removal and design choices with a final section giving an idea of improvements with further time investment.
