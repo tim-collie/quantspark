@@ -26,15 +26,15 @@ The Terraform code `main.tf` file creates a simple AWS infrastructure setup for 
 
 - **EC2 Instances**: An Elastic Compute Cloud (EC2) instance launched as part of an Auto Scaling Group (ASG) and Launch Template.
 
-- **VPC Endpoint**: A policy limited S3 endpoint to allow EC2 instances without internet access to run yum update and install Apache2.
+- **VPC Endpoint**: A policy limited S3 endpoint to allow EC2 instances on private subnets without internet access to run yum update and install Apache2.
 
 - **IAM Role**: An IAM role associated with the EC2 instances.
 
 - **Key Pair**: For troubleshooting purposes after creating the SSH key used by the EC2 instances we place the private key into Secrets Manager
 
-- **Application Load Balancer**: An Application Load Balancer configured with a Target Group.
+- **Application Load Balancer**: An Application Load Balancer configured with a Target Group, this Target Group is then in turn used in the Auto Scaling Group code to ensure the EC2 instances appear as targets.
 
-- **Security Group** one security group for the load balancer with port 80 (http) inbound from the internet, one security group for the webserver EC2 instances allowing traffic from the ALB on port 80 by referring to the ALB security group as the source of traffic. We can achieve this by the fact that the ALB is terminating traffic so is the effective source of all inbound HTTP traffic.
+- **Security Groups** one security group for the load balancer with port 80 (http) inbound from the internet, one security group for the webserver EC2 instances allowing traffic from the ALB on port 80 by referring to the ALB security group as the source of traffic. We can achieve this by the fact that the ALB is terminating traffic so is the effective source of all inbound HTTP traffic.
 
 The Terraform code `providers.tf` file enables the controlled definition of the versions of providers we use.
 
