@@ -1,4 +1,6 @@
-# Deploying an AWS based webservice via IaC  
+# Deploying an AWS based webservice via IaC
+
+![quantspark](https://github.com/tim-collie/quantspark/assets/43747594/3a05bfb0-427b-4b06-8310-7c2ecd7edf43)
 
 This repository contains Terraform code to deploy an AWS based webserver. This document will cover infrastructure deployment, 
 removal and design choices with a final section giving an idea of improvements with further time investment.
@@ -24,15 +26,15 @@ The Terraform code `main.tf` file creates a simple AWS infrastructure setup for 
 
 - **EC2 Instances**: An Elastic Compute Cloud (EC2) instance launched as part of an Auto Scaling Group (ASG) and Launch Template.
 
-- **VPC Endpoint**: A policy limited S3 endpoint to allow EC2 instances without internet access to run yum update and install Apache2.
+- **VPC Endpoint**: A policy limited S3 endpoint to allow EC2 instances on private subnets without internet access to run yum update and install Apache2.
 
 - **IAM Role**: An IAM role associated with the EC2 instances.
 
 - **Key Pair**: For troubleshooting purposes after creating the SSH key used by the EC2 instances we place the private key into Secrets Manager
 
-- **Application Load Balancer**: An Application Load Balancer configured with a Target Group.
+- **Application Load Balancer**: An Application Load Balancer configured with a Target Group, this Target Group is then in turn used in the Auto Scaling Group code to ensure the EC2 instances appear as targets.
 
-- **Security Group** one security group for the load balancer with port 80 (http) inbound from the internet, one security group for the webserver EC2 instances allowing traffic from the ALB. 
+- **Security Groups** one security group for the load balancer with port 80 (http) inbound from the internet, one security group for the webserver EC2 instances allowing traffic from the ALB on port 80 by referring to the ALB security group as the source of traffic. We can achieve this by the fact that the ALB is terminating traffic so is the effective source of all inbound HTTP traffic.
 
 The Terraform code `providers.tf` file enables the controlled definition of the versions of providers we use.
 
@@ -65,7 +67,7 @@ To deploy the infrastructure:
 
 The brief required the solution to be secure, resilient and cost efficient while being simple to understand and deploy.
 
-I have selected EC2 as the platform to act as the webserver - this give the ability to be cost efficient by selecting instance sizes that fall into the free tier while also supporting autoscaling. We use autoscaling to maintain fault tolerance at the application level  by ensuring we always have at least two instances available, by default ths ASG will place instances into the two availability zones we use so we achieve fault tolerance within our selected AWS region. We place the EC2 instances on public subnets and secure via security groups, the instances themselves are deployed using a launch template giving a simple webserver solution via user data at launch time. 
+I have selected EC2 as the platform to act as the webserver - this give the ability to be cost efficient by selecting instance sizes that fall into the free tier while also supporting autoscaling. We use autoscaling to maintain fault tolerance at the application level  by ensuring we always have at least two instances available, by default ths ASG will place instances into the two availability zones we use so we achieve fault tolerance within our selected AWS region. We place the EC2 instances on private subnets and secure via security groups, the instances themselves are deployed using a launch template giving a simple webserver solution via user data at launch time. 
 
 We use an application load balancer to route traffic between the EC2 instances, this is the cornerstone of our fault tolerance over mulitple availability zones.
 
